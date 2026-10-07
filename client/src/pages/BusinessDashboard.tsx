@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
+import { API_URL } from '../config';
 import { Clock, Users, CheckCircle, Trash2, Edit, PlusCircle, Volume2, Search, Play, Pause, PlayCircle, BarChart3, UsersRound, CalendarDays, ClipboardCheck, Ban } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
@@ -100,7 +101,7 @@ const BusinessDashboard: React.FC = () => {
   const fetchBusinessProfile = async () => {
     setIsLoadingBiz(true);
     try {
-      const res = await fetch('/api/businesses/owner/me', {
+      const res = await fetch(`${API_URL}/api/businesses/owner/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();
@@ -126,7 +127,7 @@ const BusinessDashboard: React.FC = () => {
     setMessage(null);
 
     try {
-      const res = await fetch('/api/businesses', {
+      const res = await fetch(`${API_URL}/api/businesses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -161,7 +162,7 @@ const BusinessDashboard: React.FC = () => {
   // Fetch queues & active tokens for today
   const fetchLiveQueue = async (bizId: string) => {
     try {
-      const res = await fetch(`/api/queue/live/${bizId}`);
+      const res = await fetch(`${API_URL}/api/queue/live/${bizId}`);
       const json = await res.json();
       if (json.success) {
         setQueues(json.queues);
@@ -175,7 +176,7 @@ const BusinessDashboard: React.FC = () => {
   // Fetch services
   const fetchServices = async (bizId: string) => {
     try {
-      const res = await fetch(`/api/services/business/${bizId}`);
+      const res = await fetch(`${API_URL}/api/services/business/${bizId}`);
       const json = await res.json();
       if (json.success) {
         setServices(json.data);
@@ -192,7 +193,7 @@ const BusinessDashboard: React.FC = () => {
   const fetchAnalytics = async (bizId: string) => {
     setIsLoadingAnalytics(true);
     try {
-      const res = await fetch(`/api/analytics/business/${bizId}`, {
+      const res = await fetch(`${API_URL}/api/analytics/business/${bizId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();
@@ -240,7 +241,7 @@ const BusinessDashboard: React.FC = () => {
     }
     setMessage(null);
     try {
-      const res = await fetch('/api/queue/call-next', {
+      const res = await fetch(`${API_URL}/api/queue/call-next`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -273,7 +274,7 @@ const BusinessDashboard: React.FC = () => {
   // Complete Customer ticket
   const handleCompleteCustomer = async (tokenId: string) => {
     try {
-      const res = await fetch(`/api/queue/complete/${tokenId}`, {
+      const res = await fetch(`${API_URL}/api/queue/complete/${tokenId}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -289,7 +290,7 @@ const BusinessDashboard: React.FC = () => {
   // Skip Customer ticket
   const handleSkipCustomer = async (tokenId: string) => {
     try {
-      const res = await fetch(`/api/queue/skip/${tokenId}`, {
+      const res = await fetch(`${API_URL}/api/queue/skip/${tokenId}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -305,7 +306,7 @@ const BusinessDashboard: React.FC = () => {
   // Toggle queue paused/resume status
   const handleToggleQueue = async (queueId: string) => {
     try {
-      const res = await fetch(`/api/queue/toggle/${queueId}`, {
+      const res = await fetch(`${API_URL}/api/queue/toggle/${queueId}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -341,7 +342,7 @@ const BusinessDashboard: React.FC = () => {
     setIsSubmitting(true);
     setMessage(null);
 
-    const url = editingService ? `/api/services/${editingService._id}` : '/api/services';
+    const url = editingService ? `${API_URL}/api/services/${editingService._id}` : `${API_URL}/api/services`;
     const method = editingService ? 'PUT' : 'POST';
 
     try {
@@ -378,7 +379,7 @@ const BusinessDashboard: React.FC = () => {
     if (!business) return;
 
     try {
-      const res = await fetch(`/api/services/${svcId}`, {
+      const res = await fetch(`${API_URL}/api/services/${svcId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

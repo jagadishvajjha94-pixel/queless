@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
+import { API_URL } from '../config';
 import { Search, Clock, QrCode, Download, Trash2, Calendar, MapPin, Phone, RefreshCw, Star, Info, Bell, CheckCircle2 } from 'lucide-react';
 
 interface Business {
@@ -59,7 +60,7 @@ const CustomerDashboard: React.FC = () => {
   // Fetch initial dashboard metrics
   const fetchActiveToken = async () => {
     try {
-      const res = await fetch('/api/queue/active', {
+      const res = await fetch(`${API_URL}/api/queue/active`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();
@@ -77,7 +78,7 @@ const CustomerDashboard: React.FC = () => {
   const fetchBusinesses = async () => {
     setIsLoadingBiz(true);
     try {
-      let url = `/api/businesses?limit=30`;
+      let url = `${API_URL}/api/businesses?limit=30`;
       if (categoryFilter) url += `&category=${categoryFilter}`;
       if (searchQuery) url += `&search=${searchQuery}`;
 
@@ -95,7 +96,7 @@ const CustomerDashboard: React.FC = () => {
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch('/api/queue/history', {
+      const res = await fetch(`${API_URL}/api/queue/history`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();
@@ -109,7 +110,7 @@ const CustomerDashboard: React.FC = () => {
 
   const fetchBusinessServices = async (businessId: string) => {
     try {
-      const res = await fetch(`/api/services/business/${businessId}`);
+      const res = await fetch(`${API_URL}/api/services/business/${businessId}`);
       const json = await res.json();
       if (json.success) {
         setServices(json.data);
@@ -174,7 +175,7 @@ const CustomerDashboard: React.FC = () => {
     setActionMessage(null);
 
     try {
-      const res = await fetch('/api/queue/join', {
+      const res = await fetch(`${API_URL}/api/queue/join`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -206,7 +207,7 @@ const CustomerDashboard: React.FC = () => {
     if (!window.confirm('Are you sure you want to leave the queue?')) return;
     setIsSubmitting(true);
     try {
-      const res = await fetch(`/api/queue/cancel/${tokenId}`, {
+      const res = await fetch(`${API_URL}/api/queue/cancel/${tokenId}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });

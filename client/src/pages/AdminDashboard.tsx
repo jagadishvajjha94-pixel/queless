@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../config';
 import { Shield, Users, Briefcase, RefreshCw, BarChart, ToggleLeft, ToggleRight, CheckCircle, Ban, Ticket } from 'lucide-react';
 
 interface UserItem {
@@ -42,7 +43,7 @@ const AdminDashboard: React.FC = () => {
 
   const fetchAdminStats = async () => {
     try {
-      const res = await fetch('/api/analytics/admin/stats', {
+      const res = await fetch(`${API_URL}/api/analytics/admin/stats`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();
@@ -56,7 +57,7 @@ const AdminDashboard: React.FC = () => {
 
   const fetchAllBusinesses = async () => {
     try {
-      const res = await fetch('/api/businesses/admin/all', {
+      const res = await fetch(`${API_URL}/api/businesses/admin/all`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();
@@ -80,7 +81,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleToggleSuspend = async (bizId: string) => {
     try {
-      const res = await fetch(`/api/businesses/${bizId}/suspend`, {
+      const res = await fetch(`${API_URL}/api/businesses/${bizId}/suspend`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
