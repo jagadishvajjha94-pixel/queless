@@ -16,8 +16,6 @@ import NotFoundPage from './pages/NotFoundPage.tsx';
 // Common Components
 import Navbar from './components/Navbar.tsx';
 import Footer from './components/Footer.tsx';
-import DemoBanner from './components/DemoBanner.tsx';
-import { DEMO_MODE } from './config';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -65,7 +63,6 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
-      {DEMO_MODE && <DemoBanner />}
       <Navbar />
       <main className="flex-grow">
         <Routes>
