@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Clock, AlertCircle, Users, Briefcase } from 'lucide-react';
+import { Clock, AlertCircle, Users, Store } from 'lucide-react';
+
+const CATEGORIES = ['Hospital', 'Clinic', 'Bank', 'Salon', 'Restaurant', 'Government', 'Service Center', 'Retail', 'Other'];
+
+const inputClass =
+  'w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-850 dark:bg-slate-950/40 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm';
+const labelClass = 'block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1';
 
 const RegisterPage: React.FC = () => {
   const { register } = useAuth();
@@ -14,13 +20,38 @@ const RegisterPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Shop details, only used for vendor registration
+  const [shopName, setShopName] = useState('');
+  const [shopCategory, setShopCategory] = useState('Clinic');
+  const [shopPhone, setShopPhone] = useState('');
+  const [shopAddress, setShopAddress] = useState('');
+  const [shopDesc, setShopDesc] = useState('');
+  const [openHour, setOpenHour] = useState('09:00');
+  const [closeHour, setCloseHour] = useState('18:00');
+  const [serviceName, setServiceName] = useState('');
+  const [serviceDuration, setServiceDuration] = useState(15);
+
+  const isVendor = role === 'business_owner';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
+    const shop = isVendor
+      ? {
+          name: shopName,
+          category: shopCategory,
+          address: shopAddress,
+          phone: shopPhone,
+          description: shopDesc,
+          operatingHours: { open: openHour, close: closeHour },
+          service: serviceName.trim() ? { name: serviceName.trim(), averageDuration: serviceDuration } : undefined,
+        }
+      : undefined;
+
     try {
-      const res = await register(name, email, password, role);
+      const res = await register(name, email, password, role, shop);
       if (res.success) {
         navigate('/');
       } else {
@@ -41,14 +72,18 @@ const RegisterPage: React.FC = () => {
         <div className="absolute bottom-0 left-0 w-2/3 aspect-square rounded-full bg-purple-500 blur-[80px]" />
       </div>
 
-      <div className="relative z-10 w-full max-w-md glass-panel p-8 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 shadow-xl space-y-6">
+      <div
+        className={`relative z-10 w-full ${isVendor ? 'max-w-2xl' : 'max-w-md'} glass-panel p-8 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 shadow-xl space-y-6 transition-all`}
+      >
         <div className="flex flex-col items-center space-y-2">
           <div className="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-2xl border border-blue-100 dark:border-blue-900/50">
             <Clock className="w-8 h-8 text-blue-600 dark:text-blue-400 stroke-[2.5]" />
           </div>
-          <h2 className="text-2xl font-bold tracking-tight">Create an Account</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Start joining queues or managing your services
+          <h2 className="text-2xl font-bold tracking-tight">{isVendor ? 'Register Your Shop' : 'Create an Account'}</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
+            {isVendor
+              ? 'Create your vendor account and shop listing in one step'
+              : 'Start joining queues or managing your services'}
           </p>
         </div>
 
@@ -88,57 +123,178 @@ const RegisterPage: React.FC = () => {
                     : 'border-slate-200 dark:border-slate-850 hover:bg-slate-50 dark:hover:bg-slate-900/40 text-slate-600 dark:text-slate-400'
                 }`}
               >
-                <Briefcase className="w-4.5 h-4.5" />
-                <span>Owner</span>
+                <Store className="w-4.5 h-4.5" />
+                <span>Vendor / Shop</span>
               </button>
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Full Name
-            </label>
-            <input
-              type="text"
-              required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-850 dark:bg-slate-950/40 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
-              placeholder="Dr. Connor / Satwik"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              disabled={isLoading}
-            />
+          {isVendor && (
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 pt-2">Your account</p>
+          )}
+
+          <div className={isVendor ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : 'space-y-4'}>
+            <div>
+              <label className={labelClass}>{isVendor ? 'Owner Name' : 'Full Name'}</label>
+              <input
+                type="text"
+                required
+                className={inputClass}
+                placeholder="Dr. Connor / Satwik"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Email Address</label>
+              <input
+                type="email"
+                required
+                className={inputClass}
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Email Address
-            </label>
-            <input
-              type="email"
-              required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-850 dark:bg-slate-950/40 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isLoading}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Password (Min. 6 chars)
-            </label>
+            <label className={labelClass}>Password (Min. 6 chars)</label>
             <input
               type="password"
               required
               minLength={6}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-850 dark:bg-slate-950/40 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+              className={inputClass}
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
             />
           </div>
+
+          {isVendor && (
+            <>
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400 pt-2">Your shop</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Shop / Business Name</label>
+                  <input
+                    type="text"
+                    required
+                    className={inputClass}
+                    placeholder="e.g. Metro City Dental Clinic"
+                    value={shopName}
+                    onChange={(e) => setShopName(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Category</label>
+                  <select
+                    className={inputClass}
+                    value={shopCategory}
+                    onChange={(e) => setShopCategory(e.target.value)}
+                    disabled={isLoading}
+                  >
+                    {CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Full Address</label>
+                  <input
+                    type="text"
+                    required
+                    className={inputClass}
+                    placeholder="101 Health Ave, Suite A"
+                    value={shopAddress}
+                    onChange={(e) => setShopAddress(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Phone Contact</label>
+                  <input
+                    type="tel"
+                    required
+                    className={inputClass}
+                    placeholder="+91 98200 00000"
+                    value={shopPhone}
+                    onChange={(e) => setShopPhone(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Opening Hour</label>
+                  <input
+                    type="time"
+                    className={inputClass}
+                    value={openHour}
+                    onChange={(e) => setOpenHour(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Closing Hour</label>
+                  <input
+                    type="time"
+                    className={inputClass}
+                    value={closeHour}
+                    onChange={(e) => setCloseHour(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>Description</label>
+                <textarea
+                  className={inputClass}
+                  rows={2}
+                  placeholder="What customers can expect at your shop"
+                  value={shopDesc}
+                  onChange={(e) => setShopDesc(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
+                  <label className={labelClass}>First Service (optional)</label>
+                  <input
+                    type="text"
+                    className={inputClass}
+                    placeholder="e.g. General Consultation"
+                    value={serviceName}
+                    onChange={(e) => setServiceName(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Minutes</label>
+                  <input
+                    type="number"
+                    min={1}
+                    className={inputClass}
+                    value={serviceDuration}
+                    onChange={(e) => setServiceDuration(Number(e.target.value))}
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           <button
             type="submit"
@@ -148,8 +304,10 @@ const RegisterPage: React.FC = () => {
             {isLoading ? (
               <span className="flex items-center space-x-2">
                 <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                <span>Creating account...</span>
+                <span>{isVendor ? 'Creating shop...' : 'Creating account...'}</span>
               </span>
+            ) : isVendor ? (
+              'Create Vendor Account & Shop'
             ) : (
               'Create Account'
             )}

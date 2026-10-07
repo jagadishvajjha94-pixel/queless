@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
-import { SOCKET_URL } from '../config';
+import { DEMO_MODE, SOCKET_URL } from '../config';
+import { createDemoSocket } from '../demo/demoSocket';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -16,6 +17,16 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    if (DEMO_MODE) {
+      const demoSocket = createDemoSocket();
+      if (user) demoSocket.emit('join_customer', user._id);
+      setSocket(demoSocket as unknown as Socket);
+      setIsConnected(true);
+      return () => {
+        demoSocket.disconnect();
+      };
+    }
+
     const socketInstance = io(SOCKET_URL, {
       transports: ['websocket'],
       autoConnect: true

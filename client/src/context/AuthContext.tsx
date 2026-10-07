@@ -9,12 +9,28 @@ interface User {
   isActive: boolean;
 }
 
+export interface ShopRegistration {
+  name: string;
+  category: string;
+  address: string;
+  phone: string;
+  description: string;
+  operatingHours: { open: string; close: string };
+  service?: { name: string; averageDuration: number };
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
-  register: (name: string, email: string, password: string, role: string) => Promise<{ success: boolean; message?: string }>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    role: string,
+    business?: ShopRegistration
+  ) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
 }
 
@@ -79,14 +95,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (name: string, email: string, password: string, role: string) => {
+  const register = async (name: string, email: string, password: string, role: string, business?: ShopRegistration) => {
     try {
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify({ name, email, password, role, business }),
       });
       const json = await res.json();
 

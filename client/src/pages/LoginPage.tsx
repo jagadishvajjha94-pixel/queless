@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Clock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { DEMO_MODE } from '../config';
+
+const DEMO_ACCOUNTS = [
+  { label: 'Customer', email: 'customer1@queueless.com', password: 'customer123' },
+  { label: 'Vendor: Hospital', email: 'hospital@queueless.com', password: 'owner123' },
+  { label: 'Vendor: Bank', email: 'bank@queueless.com', password: 'owner123' },
+  { label: 'Admin', email: 'admin@queueless.com', password: 'admin123' },
+];
 
 const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -56,6 +64,27 @@ const LoginPage: React.FC = () => {
           <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30 flex items-start space-x-2.5 text-sm">
             <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <span>{error}</span>
+          </div>
+        )}
+
+        {DEMO_MODE && (
+          <div className="space-y-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Try a demo account</p>
+            <div className="grid grid-cols-2 gap-2">
+              {DEMO_ACCOUNTS.map((account) => (
+                <button
+                  key={account.email}
+                  type="button"
+                  onClick={() => {
+                    setEmail(account.email);
+                    setPassword(account.password);
+                  }}
+                  className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+                >
+                  {account.label}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 

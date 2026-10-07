@@ -1,12 +1,22 @@
 const User = require('../models/User');
+const Business = require('../models/Business');
+const Service = require('../models/Service');
 const jwt = require('jsonwebtoken');
 
-// @desc    Register user
+// @desc    Register user (business owners may include their shop details to create it in the same step)
 // @route   POST /api/auth/register
 // @access  Public
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, business } = req.body;
+    const shop = role === 'business_owner' ? business : null;
+
+    if (shop && (!shop.name || !shop.category || !shop.address)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide your shop name, category and address'
+      });
+    }
 
     // Validate role
     if (role && !['customer', 'business_owner'].includes(role)) {
@@ -32,6 +42,33 @@ exports.register = async (req, res, next) => {
       password,
       role: role || 'customer'
     });
+
+    if (shop) {
+      try {
+        const createdBusiness = await Business.create({
+          owner: user._id,
+          name: shop.name,
+          description: shop.description,
+          category: shop.category,
+          address: shop.address,
+          phone: shop.phone,
+          operatingHours: shop.operatingHours
+        });
+
+        if (shop.service && shop.service.name) {
+          await Service.create({
+            business: createdBusiness._id,
+            name: shop.service.name,
+            description: shop.service.description,
+            averageDuration: Number(shop.service.averageDuration) || 15
+          });
+        }
+      } catch (shopErr) {
+        await Business.deleteMany({ owner: user._id });
+        await User.findByIdAndDelete(user._id);
+        throw shopErr;
+      }
+    }
 
     sendTokenResponse(user, 201, res);
   } catch (err) {
