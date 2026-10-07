@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Clock, AlertCircle, Users, Store } from 'lucide-react';
 
-const CATEGORIES = ['Hospital', 'Clinic', 'Bank', 'Salon', 'Restaurant', 'Government', 'Service Center', 'Retail', 'Other'];
+const CATEGORIES = ['Hospital', 'Clinic', 'Salon', 'Restaurant', 'Service Center', 'Retail', 'Other'];
 
 const inputClass =
   'w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-850 dark:bg-slate-950/40 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm';

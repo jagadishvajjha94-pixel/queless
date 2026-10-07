@@ -9,6 +9,7 @@ const Service = require('./models/Service');
 const Queue = require('./models/Queue');
 const Token = require('./models/Token');
 const Notification = require('./models/Notification');
+const GroceryList = require('./models/GroceryList');
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ const seedData = async () => {
     await Queue.deleteMany();
     await Token.deleteMany();
     await Notification.deleteMany();
+    await GroceryList.deleteMany();
     console.log('Database cleared.');
 
     // 1. Seed Users
@@ -52,7 +54,7 @@ const seedData = async () => {
 
     const owners = await User.create([
       { name: 'Dr. Sarah Connor', email: 'hospital@queueless.com', password: 'owner123', role: 'business_owner' },
-      { name: 'John Miller', email: 'bank@queueless.com', password: 'owner123', role: 'business_owner' },
+      { name: 'Priya Sharma', email: 'retail@queueless.com', password: 'owner123', role: 'business_owner' },
       { name: 'Sophia Loren', email: 'salon@queueless.com', password: 'owner123', role: 'business_owner' }
     ]);
 
@@ -77,14 +79,14 @@ const seedData = async () => {
       operatingHours: { open: '08:00', close: '20:00' }
     });
 
-    const bizBank = await Business.create({
+    const bizRetail = await Business.create({
       owner: owners[1]._id,
-      name: 'Apex National Bank',
-      description: 'Leading federal retail bank providing personal banking & mortgage solutions.',
-      category: 'Bank',
-      address: '400 Financial Plaza, Downtown',
+      name: 'FreshMart Supermarket',
+      description: 'Groceries and daily essentials. Send your grocery list and pick it up packed.',
+      category: 'Retail',
+      address: '3 Market Square, Central Avenue',
       phone: '+1-555-0245',
-      operatingHours: { open: '09:00', close: '17:00' }
+      operatingHours: { open: '07:00', close: '22:00' }
     });
 
     const bizSalon = await Business.create({
@@ -106,10 +108,9 @@ const seedData = async () => {
       { business: bizHospital._id, name: 'Cardiology Clinic', description: 'ECG and specialized heart health diagnostics', averageDuration: 30 }
     ]);
 
-    const svcsBank = await Service.create([
-      { business: bizBank._id, name: 'Cash Counter', description: 'Deposits, withdrawals, and check clearance', averageDuration: 8 },
-      { business: bizBank._id, name: 'New Account Opening', description: 'Register savings, business or deposit accounts', averageDuration: 25 },
-      { business: bizBank._id, name: 'Wealth & Loan Consultation', description: 'Mortgage calculations, loan audits and gold loans', averageDuration: 40 }
+    const svcsRetail = await Service.create([
+      { business: bizRetail._id, name: 'Express Billing', description: 'Billing counter for up to 10 items', averageDuration: 5 },
+      { business: bizRetail._id, name: 'Home Delivery Desk', description: 'Schedule doorstep delivery', averageDuration: 10 }
     ]);
 
     const svcsSalon = await Service.create([
@@ -130,9 +131,9 @@ const seedData = async () => {
       lastTokenNumber: 5
     });
 
-    const queueBankCash = await Queue.create({
-      business: bizBank._id,
-      service: svcsBank[0]._id,
+    const queueRetailBilling = await Queue.create({
+      business: bizRetail._id,
+      service: svcsRetail[0]._id,
       date: todayStr,
       currentTokenNumber: 1,
       lastTokenNumber: 4
@@ -203,52 +204,85 @@ const seedData = async () => {
       }
     ]);
 
-    // Bank Tokens
+    // Retail Tokens
     await Token.create([
       {
-        queue: queueBankCash._id,
+        queue: queueRetailBilling._id,
         customer: customers[1]._id,
-        business: bizBank._id,
-        service: svcsBank[0]._id,
+        business: bizRetail._id,
+        service: svcsRetail[0]._id,
         tokenNumber: 1,
-        tokenCode: 'QL-APE-CAS-001',
+        tokenCode: 'QL-FRE-EXP-001',
         status: 'called',
         joinedAt: new Date(Date.now() - 15 * 60 * 1000),
         calledAt: new Date(Date.now() - 2 * 60 * 1000),
-        estimatedWaitTime: 8
+        estimatedWaitTime: 5
       },
       {
-        queue: queueBankCash._id,
+        queue: queueRetailBilling._id,
         customer: customers[0]._id,
-        business: bizBank._id,
-        service: svcsBank[0]._id,
+        business: bizRetail._id,
+        service: svcsRetail[0]._id,
         tokenNumber: 2,
-        tokenCode: 'QL-APE-CAS-002',
+        tokenCode: 'QL-FRE-EXP-002',
         status: 'waiting',
         joinedAt: new Date(Date.now() - 10 * 60 * 1000),
-        estimatedWaitTime: 8
+        estimatedWaitTime: 5
       },
       {
-        queue: queueBankCash._id,
+        queue: queueRetailBilling._id,
         customer: customers[2]._id,
-        business: bizBank._id,
-        service: svcsBank[0]._id,
+        business: bizRetail._id,
+        service: svcsRetail[0]._id,
         tokenNumber: 3,
-        tokenCode: 'QL-APE-CAS-003',
+        tokenCode: 'QL-FRE-EXP-003',
         status: 'waiting',
         joinedAt: new Date(Date.now() - 5 * 60 * 1000),
-        estimatedWaitTime: 16
+        estimatedWaitTime: 10
       },
       {
-        queue: queueBankCash._id,
+        queue: queueRetailBilling._id,
         customer: customers[3]._id,
-        business: bizBank._id,
-        service: svcsBank[0]._id,
+        business: bizRetail._id,
+        service: svcsRetail[0]._id,
         tokenNumber: 4,
-        tokenCode: 'QL-APE-CAS-004',
+        tokenCode: 'QL-FRE-EXP-004',
         status: 'skipped',
         joinedAt: new Date(Date.now() - 30 * 60 * 1000),
-        estimatedWaitTime: 8
+        estimatedWaitTime: 5
+      }
+    ]);
+
+    // Grocery lists sent to the retail shop
+    await GroceryList.create([
+      {
+        customer: customers[0]._id,
+        business: bizRetail._id,
+        items: [
+          { name: 'Basmati rice', quantity: '5 kg', status: 'available' },
+          { name: 'Toor dal', quantity: '1 kg', status: 'available' },
+          { name: 'Full cream milk', quantity: '2 L', status: 'available' },
+          { name: 'Paneer', quantity: '500 g', status: 'unavailable' },
+          { name: 'Tomatoes', quantity: '1 kg', status: 'pending' }
+        ],
+        note: 'Please pick ripe tomatoes.',
+        status: 'packing',
+        updates: [
+          { status: 'submitted', message: 'Grocery list sent to the shop.', at: new Date(Date.now() - 50 * 60 * 1000) },
+          { status: 'accepted', message: 'Got your list, we will start packing shortly.', at: new Date(Date.now() - 40 * 60 * 1000) },
+          { status: 'packing', message: 'Paneer is out of stock today. Packing the rest now.', at: new Date(Date.now() - 20 * 60 * 1000) }
+        ]
+      },
+      {
+        customer: customers[1]._id,
+        business: bizRetail._id,
+        items: [
+          { name: 'Brown bread', quantity: '1 loaf' },
+          { name: 'Eggs', quantity: '12' },
+          { name: 'Butter', quantity: '100 g' }
+        ],
+        status: 'submitted',
+        updates: [{ status: 'submitted', message: 'Grocery list sent to the shop.', at: new Date(Date.now() - 5 * 60 * 1000) }]
       }
     ]);
 

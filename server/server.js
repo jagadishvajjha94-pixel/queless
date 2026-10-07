@@ -46,6 +46,7 @@ app.use('/api/businesses', require('./routes/business'));
 app.use('/api/services', require('./routes/service'));
 app.use('/api/queue', require('./routes/queue'));
 app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/grocery', require('./routes/grocery'));
 
 // Root path
 app.get('/', (req, res) => {

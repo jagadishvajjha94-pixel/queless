@@ -75,7 +75,7 @@ Once the servers are online, you can immediately test all features using these s
 * **Password:** `customer123`
 
 ### 💼 Business Owner (live ticket dashboard, service manager, analytics charts)
-* **Email:** `hospital@queueless.com` (City General Hospital) OR `bank@queueless.com` (Apex Bank)
+* **Email:** `hospital@queueless.com` (City General Hospital) OR `retail@queueless.com` (FreshMart Supermarket)
 * **Password:** `owner123`
 
 ### 🛡️ System Admin (suspend/activate businesses, view platform metrics)

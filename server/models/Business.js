@@ -18,7 +18,7 @@ const BusinessSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'Please select a business category'],
-    enum: ['Hospital', 'Clinic', 'Bank', 'Salon', 'Restaurant', 'Government', 'Service Center', 'Retail', 'Other'],
+    enum: ['Hospital', 'Clinic', 'Salon', 'Restaurant', 'Service Center', 'Retail', 'Other'],
     default: 'Other'
   },
   address: {

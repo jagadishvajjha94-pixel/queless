@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import { API_URL } from '../config';
+import GroceryListForm from '../components/grocery/GroceryListForm';
+import CustomerGroceryLists from '../components/grocery/CustomerGroceryLists';
 import { Search, Clock, QrCode, Download, Trash2, Calendar, MapPin, Phone, RefreshCw, Star, Info, Bell, CheckCircle2 } from 'lucide-react';
 
 interface Business {
@@ -56,6 +58,7 @@ const CustomerDashboard: React.FC = () => {
   const [isLoadingBiz, setIsLoadingBiz] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [actionMessage, setActionMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [groceryRefresh, setGroceryRefresh] = useState(0);
 
   // Fetch initial dashboard metrics
   const fetchActiveToken = async () => {
@@ -226,7 +229,7 @@ const CustomerDashboard: React.FC = () => {
     }
   };
 
-  const categories = ['Hospital', 'Clinic', 'Bank', 'Salon', 'Restaurant', 'Government', 'Service Center', 'Retail'];
+  const categories = ['Hospital', 'Clinic', 'Salon', 'Restaurant', 'Service Center', 'Retail'];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -373,7 +376,7 @@ const CustomerDashboard: React.FC = () => {
           <Clock className="w-10 h-10 text-slate-400 dark:text-slate-600 animate-pulse" />
           <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">You are not in any queue</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm">
-            Search for a clinic, salon, bank or local office below to join a queue remotely and avoid physical wait times.
+            Search for a clinic, salon or local store below to join a queue remotely, or send your grocery list to a retail shop.
           </p>
         </div>
       )}
@@ -496,6 +499,17 @@ const CustomerDashboard: React.FC = () => {
                   </div>
                 </div>
 
+                {selectedBusiness.category === 'Retail' && (
+                  <GroceryListForm
+                    businessId={selectedBusiness._id}
+                    businessName={selectedBusiness.name}
+                    onSent={(text) => {
+                      setActionMessage({ type: 'success', text });
+                      setGroceryRefresh((n) => n + 1);
+                    }}
+                  />
+                )}
+
                 <div className="border-t border-slate-150 dark:border-slate-900 pt-4 space-y-3">
                   <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-350">
                     Select a Service to Join Queue
@@ -546,6 +560,8 @@ const CustomerDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <CustomerGroceryLists refreshKey={groceryRefresh} />
 
       {/* Queue History */}
       <div className="space-y-4">

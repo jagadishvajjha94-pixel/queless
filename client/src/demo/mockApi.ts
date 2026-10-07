@@ -1,6 +1,6 @@
 import { emitToRoom } from './demoSocket';
 
-const DB_KEY = 'queueless_demo_db_v2';
+const DB_KEY = 'queueless_demo_db_v3';
 const TOKEN_PREFIX = 'demo.';
 
 type Role = 'customer' | 'business_owner' | 'admin';
@@ -68,15 +68,31 @@ interface DemoToken {
   createdAt: string;
 }
 
+type GroceryStatus = 'submitted' | 'accepted' | 'packing' | 'ready' | 'completed' | 'rejected' | 'cancelled';
+type GroceryItemStatus = 'pending' | 'available' | 'unavailable';
+
+interface DemoGroceryList {
+  _id: string;
+  customer: string;
+  business: string;
+  items: Array<{ _id: string; name: string; quantity: string; status: GroceryItemStatus }>;
+  note: string;
+  status: GroceryStatus;
+  updates: Array<{ status: GroceryStatus; message: string; at: string }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface DemoDb {
   users: DemoUser[];
   businesses: DemoBusiness[];
   services: DemoService[];
   queues: DemoQueue[];
   tokens: DemoToken[];
+  groceryLists: DemoGroceryList[];
 }
 
-const CATEGORIES = ['Hospital', 'Clinic', 'Bank', 'Salon', 'Restaurant', 'Government', 'Service Center', 'Retail', 'Other'];
+const CATEGORIES = ['Hospital', 'Clinic', 'Salon', 'Restaurant', 'Service Center', 'Retail', 'Other'];
 const ACTIVE_STATUSES: TokenStatus[] = ['waiting', 'called'];
 const FINAL_STATUSES: TokenStatus[] = ['completed', 'skipped', 'cancelled', 'expired'];
 
@@ -151,20 +167,6 @@ const SHOPS: Array<{
     ],
   },
   {
-    key: 'govt',
-    owner: 'Rajesh Kumar',
-    name: 'Passport Seva Kendra',
-    category: 'Government',
-    description: 'Passport application, document verification and biometrics.',
-    address: '22 Civic Centre, Sector 4',
-    phone: '+91 98200 10644',
-    hours: ['09:00', '16:00'],
-    services: [
-      ['Document Verification', 'Verify application documents with an officer', 15],
-      ['Biometrics Capture', 'Photo and fingerprint capture', 10],
-    ],
-  },
-  {
     key: 'service',
     owner: 'Arjun Nair',
     name: 'QuickFix Mobile Service Center',
@@ -183,13 +185,114 @@ const SHOPS: Array<{
     owner: 'Priya Sharma',
     name: 'FreshMart Supermarket',
     category: 'Retail',
-    description: 'Groceries and daily essentials with express billing counters.',
+    description: 'Groceries and daily essentials. Send your grocery list and pick it up packed.',
     address: '3 Market Square, Central Avenue',
     phone: '+91 98200 10866',
     hours: ['07:00', '22:00'],
     services: [
       ['Express Billing', 'Billing counter for up to 10 items', 5],
       ['Home Delivery Desk', 'Schedule doorstep delivery', 10],
+    ],
+  },
+  {
+    key: 'grocery',
+    owner: 'Kiran Patel',
+    name: 'Green Basket Grocers',
+    category: 'Retail',
+    description: 'Fresh fruit, vegetables and pantry staples. Upload your list and we pack it for you.',
+    address: '18 Orchard Lane, Lakeside',
+    phone: '+91 98200 10977',
+    hours: ['06:30', '21:30'],
+    services: [['Pickup Counter', 'Collect your packed grocery order', 5]],
+  },
+];
+
+// Sample grocery lists: shop key, customer index, status, [name, quantity, item status], note, and timeline.
+const SEED_GROCERY_LISTS: Array<{
+  shop: string;
+  customer: number;
+  status: GroceryStatus;
+  items: Array<[string, string, GroceryItemStatus]>;
+  note: string;
+  updates: Array<[GroceryStatus, string, number]>;
+}> = [
+  {
+    shop: 'retail',
+    customer: 0,
+    status: 'packing',
+    items: [
+      ['Basmati rice', '5 kg', 'available'],
+      ['Toor dal', '1 kg', 'available'],
+      ['Full cream milk', '2 L', 'available'],
+      ['Paneer', '500 g', 'unavailable'],
+      ['Tomatoes', '1 kg', 'pending'],
+    ],
+    note: 'Please pick ripe tomatoes.',
+    updates: [
+      ['submitted', 'Grocery list sent to the shop.', 50],
+      ['accepted', 'Got your list, we will start packing shortly.', 40],
+      ['packing', 'Paneer is out of stock today. Packing the rest now.', 20],
+    ],
+  },
+  {
+    shop: 'retail',
+    customer: 1,
+    status: 'submitted',
+    items: [
+      ['Brown bread', '1 loaf', 'pending'],
+      ['Eggs', '12', 'pending'],
+      ['Butter', '100 g', 'pending'],
+      ['Bananas', '6', 'pending'],
+    ],
+    note: '',
+    updates: [['submitted', 'Grocery list sent to the shop.', 6]],
+  },
+  {
+    shop: 'retail',
+    customer: 2,
+    status: 'ready',
+    items: [
+      ['Atta (wheat flour)', '10 kg', 'available'],
+      ['Sunflower oil', '1 L', 'available'],
+      ['Sugar', '2 kg', 'available'],
+    ],
+    note: 'Will pick up after 6 pm.',
+    updates: [
+      ['submitted', 'Grocery list sent to the shop.', 90],
+      ['accepted', 'The shop has accepted your grocery list.', 80],
+      ['ready', 'All packed! Ready at the pickup counter.', 30],
+    ],
+  },
+  {
+    shop: 'grocery',
+    customer: 0,
+    status: 'completed',
+    items: [
+      ['Apples', '1 kg', 'available'],
+      ['Spinach', '2 bunches', 'available'],
+      ['Onions', '2 kg', 'available'],
+    ],
+    note: '',
+    updates: [
+      ['submitted', 'Grocery list sent to the shop.', 26 * 60],
+      ['accepted', 'The shop has accepted your grocery list.', 25 * 60],
+      ['ready', 'Your groceries are packed and ready for pickup.', 24 * 60],
+      ['completed', 'Order picked up. Thank you for shopping!', 23 * 60],
+    ],
+  },
+  {
+    shop: 'grocery',
+    customer: 3,
+    status: 'accepted',
+    items: [
+      ['Carrots', '1 kg', 'pending'],
+      ['Cucumber', '4', 'pending'],
+      ['Curd', '400 g', 'pending'],
+    ],
+    note: '',
+    updates: [
+      ['submitted', 'Grocery list sent to the shop.', 15],
+      ['accepted', 'The shop has accepted your grocery list.', 10],
     ],
   },
 ];
@@ -200,7 +303,7 @@ const TODAY_QUEUES: Array<[string, number, Array<[TokenStatus, number]>]> = [
   ['salon', 0, [['skipped', 3], ['called', 2], ['waiting', 0], ['waiting', 4]]],
   ['clinic', 1, [['completed', 2], ['waiting', 4]]],
   ['restaurant', 0, [['completed', 3], ['called', 4], ['waiting', 2]]],
-  ['govt', 0, [['called', 3], ['waiting', 4]]],
+  ['retail', 0, [['completed', 1], ['called', 3], ['waiting', 4]]],
 ];
 
 class HttpError extends Error {
@@ -236,7 +339,7 @@ const seededRandom = (seed: number) => () => {
 };
 
 const createSeedDb = (): DemoDb => {
-  const db: DemoDb = { users: [], businesses: [], services: [], queues: [], tokens: [] };
+  const db: DemoDb = { users: [], businesses: [], services: [], queues: [], tokens: [], groceryLists: [] };
   const createdAt = new Date(Date.now() - 30 * 24 * 60 * 60000).toISOString();
   const random = seededRandom(42);
   const pick = <T,>(items: T[]) => items[Math.floor(random() * items.length)];
@@ -360,6 +463,21 @@ const createSeedDb = (): DemoDb => {
     });
   }
 
+  SEED_GROCERY_LISTS.forEach((seed) => {
+    const createdAt = minutesAgo(seed.updates[0][2]);
+    db.groceryLists.push({
+      _id: newId('g'),
+      customer: customerIds[seed.customer],
+      business: `b_${seed.shop}`,
+      items: seed.items.map(([name, quantity, status]) => ({ _id: newId('i'), name, quantity, status })),
+      note: seed.note,
+      status: seed.status,
+      updates: seed.updates.map(([status, message, ago]) => ({ status, message, at: minutesAgo(ago) })),
+      createdAt,
+      updatedAt: minutesAgo(seed.updates[seed.updates.length - 1][2]),
+    });
+  });
+
   return db;
 };
 
@@ -422,6 +540,30 @@ const broadcast = (db: DemoDb, businessId: string, changed: DemoToken[] = []) =>
   affected.forEach((t) => {
     emitToRoom(`customer_${t.customer}`, 'token_status_changed', { token: populateToken(db, t), position: queuePosition(db, t) });
   });
+};
+
+const GROCERY_MESSAGES: Partial<Record<GroceryStatus, string>> = {
+  accepted: 'The shop has accepted your grocery list.',
+  packing: 'The shop is packing your groceries.',
+  ready: 'Your groceries are packed and ready for pickup.',
+  completed: 'Order picked up. Thank you for shopping!',
+  rejected: 'The shop could not take your grocery list.',
+};
+
+const GROCERY_TRANSITIONS: Record<GroceryStatus, GroceryStatus[]> = {
+  submitted: ['accepted', 'rejected'],
+  accepted: ['packing', 'ready', 'rejected'],
+  packing: ['ready', 'rejected'],
+  ready: ['completed'],
+  completed: [],
+  rejected: [],
+  cancelled: [],
+};
+
+const notifyGrocery = (list: DemoGroceryList) => {
+  const payload = { listId: list._id, status: list.status };
+  emitToRoom(`business_${list.business}`, 'grocery_list_updated', payload);
+  emitToRoom(`customer_${list.customer}`, 'grocery_list_updated', payload);
 };
 
 interface ShopInput {
@@ -755,6 +897,100 @@ const routes: Array<[string, RegExp, (ctx: Ctx) => Reply]> = [
     saveDb(ctx.db);
     broadcast(ctx.db, queue.business);
     return { body: { success: true, message: `Queue status updated to ${queue.status}`, data: queue } };
+  }],
+
+  ['POST', /^\/api\/grocery$/, (ctx) => {
+    const user = requireUser(ctx, ['customer']);
+    const { db, body } = ctx;
+    const business = db.businesses.find((b) => b._id === body.businessId && !b.isSuspended && b.isActive) ?? fail(404, 'Shop not found or not accepting orders');
+    if (business.category !== 'Retail') fail(400, 'Grocery lists can only be sent to retail shops');
+
+    const items = (Array.isArray(body.items) ? body.items : [])
+      .map((item: { name?: string; quantity?: string }) => ({ name: String(item.name ?? '').trim(), quantity: String(item.quantity ?? '').trim() }))
+      .filter((item: { name: string }) => item.name);
+    if (items.length === 0) fail(400, 'Add at least one item to your grocery list');
+    if (items.length > 100) fail(400, 'A grocery list can have at most 100 items');
+
+    const now = new Date().toISOString();
+    const list: DemoGroceryList = {
+      _id: newId('g'),
+      customer: user._id,
+      business: business._id,
+      items: items.map((item: { name: string; quantity: string }) => ({ _id: newId('i'), ...item, status: 'pending' as const })),
+      note: String(body.note ?? '').trim(),
+      status: 'submitted',
+      updates: [{ status: 'submitted', message: 'Grocery list sent to the shop.', at: now }],
+      createdAt: now,
+      updatedAt: now,
+    };
+    db.groceryLists.push(list);
+    saveDb(db);
+    notifyGrocery(list);
+    return { status: 201, body: { success: true, data: list } };
+  }],
+
+  ['GET', /^\/api\/grocery\/mine$/, (ctx) => {
+    const user = requireUser(ctx, ['customer']);
+    const data = ctx.db.groceryLists
+      .filter((l) => l.customer === user._id)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map((l) => {
+        const business = ctx.db.businesses.find((b) => b._id === l.business);
+        return { ...l, business: business ? { _id: business._id, name: business.name, address: business.address, phone: business.phone, category: business.category } : null };
+      });
+    return { body: { success: true, data } };
+  }],
+
+  ['GET', /^\/api\/grocery\/business\/([^/]+)$/, (ctx) => {
+    requireUser(ctx, ['business_owner', 'admin']);
+    const business = ownedBusiness(ctx, ctx.params[0]);
+    const data = ctx.db.groceryLists
+      .filter((l) => l.business === business._id)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map((l) => ({ ...l, customer: userSummary(ctx.db, l.customer) }));
+    return { body: { success: true, data } };
+  }],
+
+  ['PUT', /^\/api\/grocery\/([^/]+)\/cancel$/, (ctx) => {
+    const user = requireUser(ctx, ['customer']);
+    const list = ctx.db.groceryLists.find((l) => l._id === ctx.params[0]) ?? fail(404, 'Grocery list not found');
+    if (list.customer !== user._id) fail(403, 'Not authorized to cancel this grocery list');
+    if (!['submitted', 'accepted'].includes(list.status)) fail(400, 'This list can no longer be cancelled');
+    list.status = 'cancelled';
+    list.updatedAt = new Date().toISOString();
+    list.updates.push({ status: 'cancelled', message: 'Cancelled by customer.', at: list.updatedAt });
+    saveDb(ctx.db);
+    notifyGrocery(list);
+    return { body: { success: true, data: list } };
+  }],
+
+  ['PUT', /^\/api\/grocery\/([^/]+)$/, (ctx) => {
+    const user = requireUser(ctx, ['business_owner']);
+    const list = ctx.db.groceryLists.find((l) => l._id === ctx.params[0]) ?? fail(404, 'Grocery list not found');
+    const business = ctx.db.businesses.find((b) => b._id === list.business);
+    if (!business || business.owner !== user._id) fail(403, 'Not authorized to update this grocery list');
+    if (['completed', 'rejected', 'cancelled'].includes(list.status)) fail(400, `This grocery list is already ${list.status}`);
+
+    const { status, message, items } = ctx.body;
+    const statusChanged = Boolean(status) && status !== list.status;
+    if (statusChanged && !GROCERY_TRANSITIONS[list.status].includes(status)) fail(400, `Cannot change a grocery list from ${list.status} to ${status}`);
+
+    if (Array.isArray(items)) {
+      items.forEach((update: { _id: string; status: GroceryItemStatus }) => {
+        const item = list.items.find((i) => i._id === update._id);
+        if (item && ['pending', 'available', 'unavailable'].includes(update.status)) item.status = update.status;
+      });
+    }
+
+    const text = String(message ?? '').trim();
+    list.updatedAt = new Date().toISOString();
+    if (statusChanged) list.status = status;
+    if (statusChanged || text) {
+      list.updates.push({ status: list.status, message: text || GROCERY_MESSAGES[list.status] || 'Your grocery list was updated.', at: list.updatedAt });
+    }
+    saveDb(ctx.db);
+    notifyGrocery(list);
+    return { body: { success: true, data: list } };
   }],
 
   ['GET', /^\/api\/analytics\/business\/([^/]+)$/, (ctx) => {

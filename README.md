@@ -1,7 +1,7 @@
 # QueueLess ⏳
 
 > **Smart Digital Queue & Appointment Management Platform**
-> A production-ready MERN + Python FastAPI digital queuing solution designed to eliminate physical waiting lines in clinics, hospitals, banks, salons, government offices, and local retail stores.
+> A production-ready MERN + Python FastAPI digital queuing solution designed to eliminate physical waiting lines in clinics, hospitals, salons, restaurants, service centers and local retail stores, where customers can also send grocery lists ahead for the shop to pack.
 
 ---
 
@@ -153,7 +153,7 @@ After running the seed script (`npm run seed`), use these credentials to log in 
   * **Email:** `customer1@queueless.com`
   * **Password:** `customer123`
 * **Business Owner Account:**
-  * **Email:** `hospital@queueless.com` (City General Hospital) OR `bank@queueless.com` (Apex Bank)
+  * **Email:** `hospital@queueless.com` (City General Hospital) OR `retail@queueless.com` (FreshMart Supermarket, receives grocery lists)
   * **Password:** `owner123`
 * **Super Admin Account:**
   * **Email:** `admin@queueless.com`
@@ -161,6 +161,6 @@ After running the seed script (`npm run seed`), use these credentials to log in 
 
 ## 🎭 Demo Mode (no backend)
 
-Production builds without `VITE_API_URL` (e.g. the Vercel deployment) run in demo mode: an in-browser mock API serves dummy shops, accounts and queue history saved in `localStorage`, so the full customer, vendor and admin flows work without the Express server, MongoDB or the Python service. The same test credentials above work except `bank@queueless.com` (the demo has no bank), plus `salon@`, `clinic@`, `restaurant@`, `govt@`, `service@` and `retail@queueless.com` (password `owner123`). Use **Reset demo** in the top banner to restore the starting data.
+Production builds without `VITE_API_URL` (e.g. the Vercel deployment) run in demo mode: an in-browser mock API serves dummy shops, accounts and queue history saved in `localStorage`, so the full customer, vendor and admin flows work without the Express server, MongoDB or the Python service. The same test credentials above work, plus `salon@`, `clinic@`, `restaurant@`, `service@` and `grocery@queueless.com` (password `owner123`). Use **Reset demo** in the top banner to restore the starting data.
 
 Set `VITE_DEMO_MODE=true` or `false` to force demo mode on or off.

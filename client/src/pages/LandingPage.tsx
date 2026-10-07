@@ -25,7 +25,7 @@ const LandingPage: React.FC = () => {
     {
       icon: <Search className="w-6 h-6 text-blue-600 dark:text-blue-400" />,
       title: "1. Search Service",
-      description: "Find your hospital, bank, clinic or salon on the platform."
+      description: "Find your hospital, clinic, salon or grocery store on the platform."
     },
     {
       icon: <Clock className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />,
@@ -78,7 +78,7 @@ const LandingPage: React.FC = () => {
     },
     {
       q: "Is it free for businesses to sign up?",
-      a: "QueueLess offers a free starter plan for single-counter businesses. We have scalable corporate licenses for hospitals and banks."
+      a: "QueueLess offers a free starter plan for single-counter businesses. We have scalable licenses for hospitals and retail chains."
     }
   ];
 
@@ -112,7 +112,7 @@ const LandingPage: React.FC = () => {
             </motion.h1>
 
             <motion.p variants={itemVariants} className="text-lg sm:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium">
-              Join queues remotely, monitor live wait times, and receive instant updates. Save hours at clinics, banks, salons, and offices.
+              Join queues remotely, monitor live wait times, and receive instant updates. Save hours at clinics, salons and stores, or send your grocery list ahead and pick it up packed.
             </motion.p>
 
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
@@ -218,15 +218,15 @@ const LandingPage: React.FC = () => {
 
             <div className="glass-panel p-6 rounded-2xl border border-slate-200/50 dark:border-slate-800/50 shadow-sm space-y-4">
               <p className="text-slate-600 dark:text-slate-300 italic text-sm">
-                "QueueLess solved our Friday cash rush. Estimations are spot on, and customers love checking status from their mobile web browsers."
+                "Customers send their grocery lists before they leave home. We pack everything, tell them what's out of stock, and they just pick it up."
               </p>
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                  JM
+                  PS
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm">John Miller</h4>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">Branch Operations, Apex Bank</span>
+                  <h4 className="font-bold text-sm">Priya Sharma</h4>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Owner, FreshMart Supermarket</span>
                 </div>
               </div>
             </div>

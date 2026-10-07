@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import { API_URL } from '../config';
+import ShopGroceryOrders from '../components/grocery/ShopGroceryOrders';
 import { Clock, Users, CheckCircle, Trash2, Edit, PlusCircle, Volume2, Search, Play, Pause, PlayCircle, BarChart3, UsersRound, CalendarDays, ClipboardCheck, Ban } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
@@ -441,7 +442,7 @@ const BusinessDashboard: React.FC = () => {
                 value={bizCategory}
                 onChange={(e) => setBizCategory(e.target.value)}
               >
-                {['Hospital', 'Clinic', 'Bank', 'Salon', 'Restaurant', 'Government', 'Service Center', 'Retail', 'Other'].map((cat) => (
+                {['Hospital', 'Clinic', 'Salon', 'Restaurant', 'Service Center', 'Retail', 'Other'].map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
@@ -614,6 +615,8 @@ const BusinessDashboard: React.FC = () => {
           ))}
         </div>
       )}
+
+      {business.category === 'Retail' && <ShopGroceryOrders businessId={business._id} />}
 
       {/* Main split grid: Live Queue Dashboard vs Config Panel */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
