@@ -1,6 +1,6 @@
 import { emitToRoom } from './demoSocket';
 
-const DB_KEY = 'queueless_demo_db_v1';
+const DB_KEY = 'queueless_demo_db_v2';
 const TOKEN_PREFIX = 'demo.';
 
 type Role = 'customer' | 'business_owner' | 'admin';
@@ -109,21 +109,6 @@ const SHOPS: Array<{
     ],
   },
   {
-    key: 'bank',
-    owner: 'John Miller',
-    name: 'Apex National Bank',
-    category: 'Bank',
-    description: 'Retail bank providing personal banking, deposits and loan solutions.',
-    address: '400 Financial Plaza, Downtown',
-    phone: '+91 98200 10245',
-    hours: ['09:00', '17:00'],
-    services: [
-      ['Cash Counter', 'Deposits, withdrawals and cheque clearance', 8],
-      ['New Account Opening', 'Savings, current and fixed deposit accounts', 25],
-      ['Loan Consultation', 'Home, gold and personal loan guidance', 40],
-    ],
-  },
-  {
     key: 'salon',
     owner: 'Sophia Loren',
     name: 'Glow & Style Salon',
@@ -212,8 +197,7 @@ const SHOPS: Array<{
 // Today's live queues: shop key, service index, and [status, customer index] per token in order.
 const TODAY_QUEUES: Array<[string, number, Array<[TokenStatus, number]>]> = [
   ['hospital', 0, [['completed', 0], ['called', 1], ['waiting', 2], ['waiting', 3], ['cancelled', 4]]],
-  ['bank', 0, [['skipped', 3], ['called', 1], ['waiting', 0], ['waiting', 2]]],
-  ['salon', 0, [['called', 2], ['waiting', 3], ['waiting', 4]]],
+  ['salon', 0, [['skipped', 3], ['called', 2], ['waiting', 0], ['waiting', 4]]],
   ['clinic', 1, [['completed', 2], ['waiting', 4]]],
   ['restaurant', 0, [['completed', 3], ['called', 4], ['waiting', 2]]],
   ['govt', 0, [['called', 3], ['waiting', 4]]],

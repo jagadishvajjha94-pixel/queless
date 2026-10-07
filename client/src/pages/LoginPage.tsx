@@ -7,7 +7,7 @@ import { DEMO_MODE } from '../config';
 const DEMO_ACCOUNTS = [
   { label: 'Customer', email: 'customer1@queueless.com', password: 'customer123' },
   { label: 'Vendor: Hospital', email: 'hospital@queueless.com', password: 'owner123' },
-  { label: 'Vendor: Bank', email: 'bank@queueless.com', password: 'owner123' },
+  { label: 'Vendor: Salon', email: 'salon@queueless.com', password: 'owner123' },
   { label: 'Admin', email: 'admin@queueless.com', password: 'admin123' },
 ];
 
